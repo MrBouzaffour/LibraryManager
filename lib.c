@@ -31,16 +31,21 @@ InputBuffer* new_buffer() {
 	}
 
 void read_input(InputBuffer* input_buffer) {
-	
-	ssize_t bytes_read = getline(&(input_buffer->buffer), &(input_buffer->buffer_length), stdin);
-	
-	if (bytes_read <= 0) {
+	if (input_buffer->buffer == NULL) {
+		input_buffer->buffer = (char*)malloc(1024);
+		input_buffer->buffer_length = 1024;
+	}
+
+	if (fgets(input_buffer->buffer, input_buffer->buffer_length, stdin) == NULL) {
 		printf("Error reading input\n");
 		exit(EXIT_FAILURE);
 	}
-     
-	input_buffer->input_length = bytes_read - 1;
-	input_buffer->buffer[bytes_read - 1] = 0;
+	
+	input_buffer->input_length = strlen(input_buffer->buffer);
+	if (input_buffer->buffer[input_buffer->input_length - 1] == '\n') {
+		input_buffer->buffer[input_buffer->input_length - 1] = 0;
+		input_buffer->input_length--;
+	}									}
 }
 
 void close_buffer(InputBuffer* input_buffer) {
