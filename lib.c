@@ -28,9 +28,9 @@ typedef enum {
 	PREPARE_SUCCESS,
 	PREPARE_UNRECOGNIZED,
 	PREPARE_ERROR
-} PrepareResults;
+} PrepareResult;
 
-typedef emum {
+typedef enum {
 	INSERT,
 	SELECT
 }StatementType;
@@ -97,7 +97,7 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
 }
 
 
-int main()
+int main()	
 {
 	InputBuffer* input_buffer = new_buffer();
 	while(true)
@@ -113,5 +113,17 @@ int main()
 					 continue;
 			 }
 		 }
+		Statement statement;
+		switch ( prepare_statement(input_buffer, &statement)) {
+			
+			case(PREPARE_SUCCESS):
+				break;
+			case (PREPARE_ERROR):
+				printf("Syntax error. Could not parse statement.\n");
+				continue;
+			case(PREPARE_UNRECOGNIZED):
+				printf("Unrecognized keyword at start of '%s'.\n",input_buffer->buffer);
+				continue;
+		}
 	}
 }
