@@ -31,6 +31,7 @@ InputBuffer* new_buffer() {
 	}
 
 void read_input(InputBuffer* input_buffer) {
+	
 	if (input_buffer->buffer == NULL) {
 		input_buffer->buffer = (char*)malloc(1024);
 		input_buffer->buffer_length = 1024;
@@ -45,7 +46,7 @@ void read_input(InputBuffer* input_buffer) {
 	if (input_buffer->buffer[input_buffer->input_length - 1] == '\n') {
 		input_buffer->buffer[input_buffer->input_length - 1] = 0;
 		input_buffer->input_length--;
-	}									}
+	}
 }
 
 void close_buffer(InputBuffer* input_buffer) {
@@ -62,8 +63,6 @@ int main()
 	{
 		input_prompt();
 		read_input(input_buffer);
-		printf("Input : %s",input_buffer->buffer);
-
 
 	}
 }
