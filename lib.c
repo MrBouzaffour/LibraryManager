@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define BUFFERCAP 1024
 #define UNEMPLEMENTED \
 	do {	\
 		fprintf(stderr,"%s:%d: TODO: %s is not implemented yet.\n",\
@@ -11,19 +12,38 @@
 		}while(0)
 
 
-typedef struct
-{
+typedef struct {
 	char* buffer;
 	size_t buffer_length;
 	size_t input_length;
 }InputBuffer;
 
 
-typedef enum{
+typedef enum {
 	META_COMMAND_SUCCESS,
 	META_COMMAND_UNRECOGNIZED
 }MetaCommandResult;
 
+typedef enum {
+	PREPARE_SUCCESS,
+	PREPARE_UNRECOGNIZED,
+	PREPARE_ERROR
+} PrepareResults;
+
+typedef emum {
+	INSERT,
+	SELECT
+}StatementType;
+
+typedef struct {
+	StatementType type;
+}Statement;
+
+typedef enum {
+	SUCCESS,
+	FAILED,
+	NOT_FOUND
+} ExecutedResult;
 
 InputBuffer* new_buffer() {
 	
@@ -34,13 +54,13 @@ InputBuffer* new_buffer() {
 	input_buffer->input_length = 0;
 	
 	return input_buffer;
-	}
+}
 
 void read_input(InputBuffer* input_buffer) {
 	
 	if (input_buffer->buffer == NULL) {
-		input_buffer->buffer = (char*)malloc(1024);
-		input_buffer->buffer_length = 1024;
+		input_buffer->buffer = (char*)malloc(BUFFERCAP);
+		input_buffer->buffer_length = BUFFERCAP;
 	}
 
 	if (fgets(input_buffer->buffer, input_buffer->buffer_length, stdin) == NULL) {
@@ -60,6 +80,7 @@ void close_buffer(InputBuffer* input_buffer) {
 	free(input_buffer->buffer);
 	free(input_buffer);
 }
+
 void input_prompt(){printf("lib >");}
 
 MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
@@ -70,6 +91,12 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 		return META_COMMAND_UNRECOGNIZED;
 	}
 }
+
+PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
+	UNEMPLEMENTED;
+}
+
+
 int main()
 {
 	InputBuffer* input_buffer = new_buffer();
