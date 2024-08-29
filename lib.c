@@ -19,6 +19,12 @@ typedef struct
 }InputBuffer;
 
 
+typedef enum{
+	META_COMMAND_SUCCESS,
+	META_COMMAND_UNRECOGNIZED
+}MetaCommandResult;
+
+
 InputBuffer* new_buffer() {
 	
 	InputBuffer* input_buffer = (InputBuffer*)malloc(sizeof(InputBuffer));
@@ -56,6 +62,14 @@ void close_buffer(InputBuffer* input_buffer) {
 }
 void input_prompt(){printf("lib >");}
 
+MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
+	
+	if (strcmp(input_buffer->buffer, ".exit") == 0) {
+		exit(EXIT_SUCCESS);
+	} else{
+		return META_COMMAND_UNRECOGNIZED;
+	}
+}
 int main()
 {
 	InputBuffer* input_buffer = new_buffer();
