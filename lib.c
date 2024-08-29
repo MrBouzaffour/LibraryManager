@@ -93,6 +93,8 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 }
 
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
+	(void)input_buffer;
+	(void)statement;
 	UNEMPLEMENTED;
 }
 
