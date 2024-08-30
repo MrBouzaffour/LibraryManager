@@ -76,12 +76,27 @@ typedef enum {
 	NOT_FOUND
 } ExecutedResult;
 
+
+Libraries init_Libraries() {
+	Libraries libs;
+	libs.libraries = malloc( LIBRARIESCAP * sizeof(Libraries) );
+	libs.count = 0;
+	
+	if(libs.libraries == NULL) {
+		fprintf(stderr, "Memory allocation failed\n");
+		exit(EXIT_FAILURE);
+	}
+
+	printf("Step 1 : INIT LIBRARIES\n");
+	return libs;
+}
+
+
 Library init_Library(char *name, char *location) {
 	Library lib;
 
 	lib.name = malloc(strlen(name)*sizeof(char));
 	lib.location = malloc(strlen(location)*sizeof(char));
-	
 	if (lib.name == NULL || lib.location == NULL) {
 		fprintf(stderr, "Memory allocation failed\n");
 		exit(EXIT_FAILURE);
@@ -161,10 +176,8 @@ ExecutedResult execute_statement(Statement* statement) {
 int main()	
 {
 	InputBuffer* input_buffer = new_buffer();
-	char *name = "testname";
-	char *location = "testLocation";
-	Library lib = init_Library(name,location);
-	printf("Welcome, this is %s at %s . \n",lib.name,lib.location);
+	Libraries libs = init_Libraries();
+	printf("there are %d libraries \n",libs.count);
 	while(true)
 	{
 		input_prompt();
