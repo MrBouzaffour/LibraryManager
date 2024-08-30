@@ -69,6 +69,16 @@ typedef enum {
 	NOT_FOUND
 } ExecutedResult;
 
+Library init_Library() {
+	Library lib;
+	lib -> name;
+	lib -> location;
+	lib -> books = {0};
+
+	return lib
+
+}
+
 InputBuffer* new_buffer() {
 	
 	InputBuffer* input_buffer = (InputBuffer*)malloc(sizeof(InputBuffer));
