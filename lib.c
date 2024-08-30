@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #define BUFFERCAP 1024
+#define LIBRARYCAP 1024
 #define UNEMPLEMENTED \
 	do {	\
 		fprintf(stderr,"%s:%d: TODO: %s is not implemented yet.\n",\
@@ -16,13 +17,13 @@ typedef struct {
 	char* buffer;
 	size_t buffer_length;
 	size_t input_length;
-}InputBuffer;
+} InputBuffer;
 
 
 typedef enum {
 	META_COMMAND_SUCCESS,
 	META_COMMAND_UNRECOGNIZED
-}MetaCommandResult;
+} MetaCommandResult;
 
 typedef enum {
 	PREPARE_SUCCESS,
@@ -33,17 +34,45 @@ typedef enum {
 typedef enum {
 	INSERT,
 	SELECT
-}StatementType;
+} StatementType;
 
 typedef struct {
 	StatementType type;
-}Statement;
+} Statement;
 
 typedef enum {
 	SUCCESS,
 	FAILED,
 	NOT_FOUND
 } ExecutedResult;
+
+
+/*-------------Library-----------*/
+
+typedef struct {
+	char Name[20];
+	char Location[30];
+	Book books[LIBRARYCAP];
+} Library;
+
+typedef struct {
+	char Name[20];
+	char Genre[20];
+	Author Auth;
+} Book;
+
+typedef struct {
+	char Name[20];
+	char LastName[20];
+	Date DateBirth;
+} Author;
+
+typedef struct {
+	int day;
+	int month;
+	int year;	
+} Date;
+
 
 InputBuffer* new_buffer() {
 	
