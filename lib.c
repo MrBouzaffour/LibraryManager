@@ -99,6 +99,19 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
 }
 
 
+ExecutedResult execute_statement(Statement* statement) {
+	(void) statement;
+	UNEMPLEMENTED;
+/*
+ 	switch (statement->type) {
+	    case (STATEMENT_INSERT):
+		return execute_insert(statement, table);
+	case (STATEMENT_SELECT_ALL):
+		return execute_select_all(statement, table);
+	case (STATEMENT_SELECT):
+	return execute_select(statement, table);
+}*/
+}
 int main()	
 {
 	InputBuffer* input_buffer = new_buffer();
@@ -116,7 +129,7 @@ int main()
 			 }
 		 }
 		Statement statement;
-		switch ( prepare_statement(input_buffer, &statement)) {
+		switch (prepare_statement(input_buffer, &statement)) {
 			
 			case(PREPARE_SUCCESS):
 				break;
@@ -126,6 +139,16 @@ int main()
 			case(PREPARE_UNRECOGNIZED):
 				printf("Unrecognized keyword at start of '%s'.\n",input_buffer->buffer);
 				continue;
+		}
+		switch (execute_statement(&statement)) {
+			case (SUCCESS):
+				printf("Executed.\n");
+				break;
+			case (FAILED):
+				printf("Error: Execution failed.\n");
+				break;
+			case (NOT_FOUND):
+				printf("Error: Data Not found.\n");
 		}
 	}
 }
