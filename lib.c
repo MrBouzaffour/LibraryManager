@@ -5,6 +5,7 @@
 
 #define BUFFERCAP 1024
 #define LIBRARYCAP 1024
+
 #define UNIMPLEMENTED \
 	do {	\
 		fprintf(stderr,"%s:%d: TODO: %s is not implemented yet.\n",\
@@ -20,8 +21,8 @@ typedef struct {
 } Date;
 
 typedef struct {
-	char Name[20];
-	char LastName[20];
+	char Name[10];
+	char LastName[10];
 	Date DateBirth;
 } Author;
 
@@ -32,8 +33,8 @@ typedef struct {
 } Book;
 
 typedef struct {
-	char Name[20];
-	char Location[30];
+	char *name;
+	char *location;
 	Book books[LIBRARYCAP];
 } Library;
 
@@ -69,14 +70,14 @@ typedef enum {
 	NOT_FOUND
 } ExecutedResult;
 
-Library init_Library() {
+Library init_Library(char *name, char *location) {
 	Library lib;
-	lib -> name;
-	lib -> location;
-	lib -> books = {0};
-
-	return lib
-
+	lib->name = malloc(strlen(name)*sizeof(char));
+	lib->location = malloc(strlen(location)*sizeof(char));
+	strcpy(lib->name,name);
+	strcpy(lib->location,location);
+	memset(lib.books,0,sizeof(lib.books));
+	return lib;
 }
 
 InputBuffer* new_buffer() {
@@ -147,6 +148,10 @@ ExecutedResult execute_statement(Statement* statement) {
 int main()	
 {
 	InputBuffer* input_buffer = new_buffer();
+	char *name = "testname";
+	char *location = "testLocation";
+	Library lib = init_Library(name,location);
+	printf("Welcome, this is %s at %s . \n",lib.name,lib.location);
 	while(true)
 	{
 		input_prompt();
