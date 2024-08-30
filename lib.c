@@ -4,7 +4,8 @@
 #include <stdlib.h>
 
 #define BUFFERCAP 1024
-#define LIBRARYCAP 1024
+#define BOOKCAP 1024
+#define LIBRARIESCAP  1024
 
 #define UNIMPLEMENTED \
 	do {	\
@@ -33,10 +34,15 @@ typedef struct {
 } Book;
 
 typedef struct {
-	char *name;
-	char *location;
-	Book books[LIBRARYCAP];
+	char* name;
+	char* location;
+	Book books[BOOKCAP];
 } Library;
+
+typedef struct {
+	Library* libraries;
+	int count;
+} Libraries;
 
 typedef struct {
 	char* buffer;
@@ -72,10 +78,17 @@ typedef enum {
 
 Library init_Library(char *name, char *location) {
 	Library lib;
-	lib->name = malloc(strlen(name)*sizeof(char));
-	lib->location = malloc(strlen(location)*sizeof(char));
-	strcpy(lib->name,name);
-	strcpy(lib->location,location);
+
+	lib.name = malloc(strlen(name)*sizeof(char));
+	lib.location = malloc(strlen(location)*sizeof(char));
+	
+	if (lib.name == NULL || lib.location == NULL) {
+		fprintf(stderr, "Memory allocation failed\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	strcpy(lib.name,name);
+	strcpy(lib.location,location);
 	memset(lib.books,0,sizeof(lib.books));
 	return lib;
 }
@@ -115,7 +128,7 @@ void close_buffer(InputBuffer* input_buffer) {
 	free(input_buffer);
 }
 
-void input_prompt(){printf("lib >");}
+void input_prompt(){printf(">> ");}
 
 MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 	if (strcmp(input_buffer->buffer, ".exit") == 0) {
