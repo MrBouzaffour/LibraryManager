@@ -5,7 +5,7 @@
 
 #define BUFFERCAP 1024
 #define LIBRARYCAP 1024
-#define UNEMPLEMENTED \
+#define UNIMPLEMENTED \
 	do {	\
 		fprintf(stderr,"%s:%d: TODO: %s is not implemented yet.\n",\
 						__FILE__,__LINE__,__func__);\
@@ -14,11 +14,34 @@
 
 
 typedef struct {
+	int day;
+	int month;
+	int year;	
+} Date;
+
+typedef struct {
+	char Name[20];
+	char LastName[20];
+	Date DateBirth;
+} Author;
+
+typedef struct {
+	char Name[20];
+	char Genre[20];
+	Author Auth;
+} Book;
+
+typedef struct {
+	char Name[20];
+	char Location[30];
+	Book books[LIBRARYCAP];
+} Library;
+
+typedef struct {
 	char* buffer;
 	size_t buffer_length;
 	size_t input_length;
 } InputBuffer;
-
 
 typedef enum {
 	META_COMMAND_SUCCESS,
@@ -45,34 +68,6 @@ typedef enum {
 	FAILED,
 	NOT_FOUND
 } ExecutedResult;
-
-
-/*-------------Library-----------*/
-
-typedef struct {
-	char Name[20];
-	char Location[30];
-	Book books[LIBRARYCAP];
-} Library;
-
-typedef struct {
-	char Name[20];
-	char Genre[20];
-	Author Auth;
-} Book;
-
-typedef struct {
-	char Name[20];
-	char LastName[20];
-	Date DateBirth;
-} Author;
-
-typedef struct {
-	int day;
-	int month;
-	int year;	
-} Date;
-
 
 InputBuffer* new_buffer() {
 	
@@ -104,8 +99,7 @@ void read_input(InputBuffer* input_buffer) {
 	}
 }
 
-void close_buffer(InputBuffer* input_buffer) {
-	
+void close_buffer(InputBuffer* input_buffer) {	
 	free(input_buffer->buffer);
 	free(input_buffer);
 }
@@ -113,7 +107,6 @@ void close_buffer(InputBuffer* input_buffer) {
 void input_prompt(){printf("lib >");}
 
 MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
-	
 	if (strcmp(input_buffer->buffer, ".exit") == 0) {
 		exit(EXIT_SUCCESS);
 	} else{
@@ -124,13 +117,12 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
 	(void)input_buffer;
 	(void)statement;
-	UNEMPLEMENTED;
+	UNIMPLEMENTED;
 }
-
 
 ExecutedResult execute_statement(Statement* statement) {
 	(void) statement;
-	UNEMPLEMENTED;
+	UNIMPLEMENTED;
 /*
  	switch (statement->type) {
 	    case (STATEMENT_INSERT):
@@ -139,8 +131,9 @@ ExecutedResult execute_statement(Statement* statement) {
 		return execute_select_all(statement, table);
 	case (STATEMENT_SELECT):
 	return execute_select(statement, table);
-}*/
+	}*/
 }
+
 int main()	
 {
 	InputBuffer* input_buffer = new_buffer();
@@ -148,18 +141,18 @@ int main()
 	{
 		input_prompt();
 		read_input(input_buffer);
-		 if (input_buffer->buffer[0] == '.'){
-			 switch( do_meta_command(input_buffer)){
-				 case(META_COMMAND_SUCCESS):
-					 continue;
-				 case(META_COMMAND_UNRECOGNIZED):
-					 printf("Unrecognized command '%s'\n", input_buffer->buffer);
-					 continue;
-			 }
-		 }
+		if (input_buffer->buffer[0] == '.') {
+			switch( do_meta_command(input_buffer)) {
+				case(META_COMMAND_SUCCESS):
+					continue;
+				case(META_COMMAND_UNRECOGNIZED):
+					printf("Unrecognized command '%s'\n", input_buffer->buffer);
+					continue;
+			}
+		}
+		
 		Statement statement;
-		switch (prepare_statement(input_buffer, &statement)) {
-			
+		switch (prepare_statement(input_buffer, &statement)) {	
 			case(PREPARE_SUCCESS):
 				break;
 			case (PREPARE_ERROR):
@@ -169,6 +162,7 @@ int main()
 				printf("Unrecognized keyword at start of '%s'.\n",input_buffer->buffer);
 				continue;
 		}
+		
 		switch (execute_statement(&statement)) {
 			case (SUCCESS):
 				printf("Executed.\n");
