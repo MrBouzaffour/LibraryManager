@@ -42,6 +42,7 @@ typedef struct {
 typedef struct {
 	Library* libraries;
 	int count;
+	Library currentlib = NULL;
 } Libraries;
 
 typedef struct {
@@ -154,25 +155,21 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 	}
 }
 
-PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement,Libraries* libs, Library* lib) {
+PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement,Libraries* libs) {
 	 if (strncmp(input_buffer->buffer, "show", 4) == 0) {
         statement->type = SHOW;
 								if (libs.count == 0) {
 											printf("thete is no libraries registered. /n");
-										 
 								}
 								for (int i = 0; i <= libs.count; ++i) {
-												if (libs.libraries[i].name == lib.name ) {
-														printf("*  %s./n",lib.name);
+												if (libs.libraries[i].name == libs.currentlib ) {
+														printf("*  %s./n",libs.currentlib);
 														}
 													else {
 														printf("%s",libs.libraries[i].name);
 													}
 									}
-        
      return PREPARE_SUCCESS;
-        
-        
         }
 	(void)input_buffer;
 	(void)statement;
