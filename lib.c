@@ -62,6 +62,7 @@ typedef enum {
 } PrepareResult;
 
 typedef enum {
+ SHOW,
 	INSERT,
 	SELECT
 } StatementType;
