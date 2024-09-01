@@ -160,18 +160,19 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement,
 	if (strncmp(input_buffer->buffer, "show", 4) == 0) {
 		statement->type = SHOW;
 		if (libs->count == 0) {
-			printf("thete is no libraries registered. /n");
+			printf("thete is no libraries registered. \n");
 		}
-		for (int i = 0; i <= libs->count; ++i) {
+		for (int i = 0; i < libs->count; ++i) {
 			if (libs->libraries[i].name == libs->currentlib->name ) {
-				printf("*  %p./n",libs->currentlib);
+				printf("*  %s.\n",libs->currentlib->name);
 			}
 			else {
-				printf("%s",libs->libraries[i].name);
+				printf("%s. \n",libs->libraries[i].name);
 			}
 		}
 		return PREPARE_SUCCESS;
 	}
+	return PREPARE_UNRECOGNIZED;
 }
 
 ExecutedResult execute_statement(Statement* statement) {
@@ -208,7 +209,7 @@ int main()
 		}
 		
 		Statement statement;
-		switch (prepare_statement(input_buffer, &statement)) {	
+		switch (prepare_statement(input_buffer, &statement, &libs)) {	
 			case(PREPARE_SUCCESS):
 				break;
 			case (PREPARE_ERROR):
