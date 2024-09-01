@@ -157,22 +157,12 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 }
 
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement, Libraries* libs) {
+	(void)libs;
 	if (strncmp(input_buffer->buffer, "show", 4) == 0) {
 		statement->type = SHOW;
 		return PREPARE_SUCCESS;
 	}
 	return PREPARE_UNRECOGNIZED;
-}
-
-ExecutedResult execute_statement(Statement* statement, Libraries* libs) {
-	switch (statement->type) {/*
-		case (INSERT):
-			return execute_insert(statement);
-		case (SELECT):
-			return execute_select(statement);*/
-		case (SHOW):
-			return execute_show(libs);
-	}
 }
 
 ExecutedResult execute_show(Libraries* libs) {
@@ -191,6 +181,20 @@ ExecutedResult execute_show(Libraries* libs) {
 	}
 	return SUCCESS;
 }
+
+ExecutedResult execute_statement(Statement* statement, Libraries* libs) {
+	switch (statement->type) {
+		/*case (INSERT):
+			return execute_insert(statement);
+		case (SELECT):
+			return execute_select(statement);*/
+		case (SHOW):
+			return execute_show(libs);
+		default:
+			return FAILED;
+	}
+}
+
 int main()	
 {
 	InputBuffer* input_buffer = new_buffer();
