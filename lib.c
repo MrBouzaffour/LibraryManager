@@ -78,6 +78,10 @@ typedef enum {
 	NOT_FOUND
 } ExecutedResult;
 
+typedef enum {
+	DEBUGGING_SUCCESS,
+	DEBUGGING_FAILLED
+}DebuggingResult;
 
 Libraries init_Libraries() {
 	Libraries libs;
@@ -156,11 +160,25 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 	}
 }
 
+DebuggingResult debug (InputBuffer* input_buffer, Statement* statement, Libraries* libs) {
+	(void)libs;
+	if (statement->type == SHOW) {
+		if (strlen(input_buffer->buffer) == 4) {
+			return DEBUGGING_SUCCESS;
+		}
+	}
+	return DEBUGGING_FAILLED;
+}
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement, Libraries* libs) {
 	(void)libs;
 	if (strncmp(input_buffer->buffer, "show", 4) == 0) {
 		statement->type = SHOW;
-		return PREPARE_SUCCESS;
+		switch (debug(input_buffer, statement, libs)) {
+			case (DEBUGGING_SUCCESS):
+				return PREPARE_SUCCESS;
+			case (DEBUGGING_FAILLED):
+				return PREPARE_UNRECOGNIZED;	
+		}
 	}
 	return PREPARE_UNRECOGNIZED;
 }
