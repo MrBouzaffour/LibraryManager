@@ -42,7 +42,7 @@ typedef struct {
 typedef struct {
 	Library* libraries;
 	int count;
-	Library currentlib = NULL;
+	Library* currentlib;
 } Libraries;
 
 typedef struct {
@@ -93,7 +93,7 @@ Libraries init_Libraries() {
 	return libs;
 }
 
-
+/*
 Library init_Library(char *name, char *location) {
 	Library lib;
 
@@ -109,6 +109,7 @@ Library init_Library(char *name, char *location) {
 	memset(lib.books,0,sizeof(lib.books));
 	return lib;
 }
+*/
 
 InputBuffer* new_buffer() {
 	
@@ -156,24 +157,21 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 }
 
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement,Libraries* libs) {
-	 if (strncmp(input_buffer->buffer, "show", 4) == 0) {
-        statement->type = SHOW;
-								if (libs.count == 0) {
-											printf("thete is no libraries registered. /n");
-								}
-								for (int i = 0; i <= libs.count; ++i) {
-												if (libs.libraries[i].name == libs.currentlib ) {
-														printf("*  %s./n",libs.currentlib);
-														}
-													else {
-														printf("%s",libs.libraries[i].name);
-													}
-									}
-     return PREPARE_SUCCESS;
-        }
-	(void)input_buffer;
-	(void)statement;
-	UNIMPLEMENTED;
+	if (strncmp(input_buffer->buffer, "show", 4) == 0) {
+		statement->type = SHOW;
+		if (libs->count == 0) {
+			printf("thete is no libraries registered. /n");
+		}
+		for (int i = 0; i <= libs->count; ++i) {
+			if (libs->libraries[i].name == libs->currentlib->name ) {
+				printf("*  %p./n",libs->currentlib);
+			}
+			else {
+				printf("%s",libs->libraries[i].name);
+			}
+		}
+		return PREPARE_SUCCESS;
+	}
 }
 
 ExecutedResult execute_statement(Statement* statement) {
