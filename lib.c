@@ -92,7 +92,7 @@ typedef enum {
 
 Libraries init_Libraries() {
 	Libraries libs;
-	libs.libraries = malloc( LIBRARIESCAP * sizeof(Libraries) );
+	libs.libraries = malloc(LIBRARIESCAP * sizeof(Library));
 	libs.count = 0;
 	
 	if(libs.libraries == NULL) {
@@ -209,7 +209,7 @@ ExecutedResult execute_show(Libraries* libs) {
 	}
 	else {
 		for (int i = 0; i < libs->count; ++i) {
-			if (libs->libraries[i].name == libs->currentlib->name ) {
+			if (strcmp(libs->libraries[i].name, libs->currentlib->name) == 0){
 				printf("*  %s.\n",libs->currentlib->name);
 			} 
 			else {
@@ -225,8 +225,8 @@ ExecutedResult execute_use(Statement* statement, Libraries* libs) {
 		switch (libExist(libs,statement->auxlib))
 		{
 			case EXIST:
-				for (int i = 0 ; i < libs->count; ++i ) { 
-					if ( libs->libraries[i].name == statement->auxlib->name) {
+				for (int i = 0; i < libs->count; ++i) {
+					if (strcmp(libs->libraries[i].name, statement->auxlib->name) == 0) {
 						libs->currentlib = &libs->libraries[i];
 						return SUCCESS;
 					}
