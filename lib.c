@@ -63,9 +63,9 @@ typedef enum {
 } PrepareResult;
 
 typedef enum {
- SHOW,
-	INSERT,
-	SELECT
+ 	SHOW
+	//INSERT,
+	//SELECT
 } StatementType;
 
 typedef struct {
@@ -156,39 +156,41 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 	}
 }
 
-PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement,Libraries* libs) {
+PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement, Libraries* libs) {
 	if (strncmp(input_buffer->buffer, "show", 4) == 0) {
 		statement->type = SHOW;
-		if (libs->count == 0) {
-			printf("thete is no libraries registered. \n");
-		}
-		for (int i = 0; i < libs->count; ++i) {
-			if (libs->libraries[i].name == libs->currentlib->name ) {
-				printf("*  %s.\n",libs->currentlib->name);
-			}
-			else {
-				printf("%s. \n",libs->libraries[i].name);
-			}
-		}
 		return PREPARE_SUCCESS;
 	}
 	return PREPARE_UNRECOGNIZED;
 }
 
-ExecutedResult execute_statement(Statement* statement) {
-	(void) statement;
-	UNIMPLEMENTED;
-/*
- 	switch (statement->type) {
-	    case (STATEMENT_INSERT):
-		return execute_insert(statement, table);
-	case (STATEMENT_SELECT_ALL):
-		return execute_select_all(statement, table);
-	case (STATEMENT_SELECT):
-	return execute_select(statement, table);
-	}*/
+ExecutedResult execute_statement(Statement* statement, Libraries* libs) {
+	switch (statement->type) {/*
+		case (INSERT):
+			return execute_insert(statement);
+		case (SELECT):
+			return execute_select(statement);*/
+		case (SHOW):
+			return execute_show(libs);
+	}
 }
 
+ExecutedResult execute_show(Libraries* libs) {
+	if (libs->count == 0) {
+		printf("thete is no libraries registered. \n");
+	}
+	else {
+		for (int i = 0; i < libs->count; ++i) {
+			if (libs->libraries[i].name == libs->currentlib->name ) {
+				printf("*  %s.\n",libs->currentlib->name);
+			} 
+			else {
+				printf("%s. \n",libs->libraries[i].name);
+			}
+		}
+	}
+	return SUCCESS;
+}
 int main()	
 {
 	InputBuffer* input_buffer = new_buffer();
@@ -220,7 +222,7 @@ int main()
 				continue;
 		}
 		
-		switch (execute_statement(&statement)) {
+		switch (execute_statement(&statement, &libs)) {
 			case (SUCCESS):
 				printf("Executed.\n");
 				break;
