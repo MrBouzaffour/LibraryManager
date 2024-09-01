@@ -219,23 +219,31 @@ ExecutedResult execute_show(Libraries* libs) {
 	}
 	return SUCCESS;
 }
+
 ExecutedResult execute_use(Statement* statement, Libraries* libs) {
 	if (statement->auxlib != NULL) {
 		switch (libExist(libs,statement->auxlib))
 		{
 			case EXIST:
-				libs->currentlib = statement->auxlib;
-				return SUCCESS;
+				for (int i = 0 ; i < libs->count; ++i ) { 
+					if ( libs->libraries[i].name == statement->auxlib->name) {
+						libs->currentlib = &libs->libraries[i];
+						return SUCCESS;
+					}
+				}
+				break;
 			case NOTEXIST:
-				libs->libraries[libs->count] = statement->auxlib;
+				libs->libraries[libs->count] = *statement->auxlib;
 				libs->count++;
-				libs->currentlib = statement->auxlib;
+				libs->currentlib = &libs->libraries[libs->count -1];
 				return SUCCESS;
 		}
 	}
 	return FAILED;
 }
-ExecutedResult execute_statement(Statement* statement, Libraries* libs) {
+
+ExecutedResult execute_statement(
+		Statement* statement, Libraries* libs) {
 	switch (statement->type) {
 		/*case (INSERT):
 			return execute_insert(statement);
