@@ -162,10 +162,15 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 
 DebuggingResult debug (InputBuffer* input_buffer, Statement* statement, Libraries* libs) {
 	(void)libs;
-	if (statement->type == SHOW) {
-		if (strlen(input_buffer->buffer) == 4) {
+	switch(statement->type) {
+		case (SHOW):
+			if (strlen(input_buffer->buffer) != 4) {
+				printf("Error: 'show' command should be exactly 4 characters long.\n");
+				return DEBUGGING_FAILLED;
+			}
+			break;
+		default:
 			return DEBUGGING_SUCCESS;
-		}
 	}
 	return DEBUGGING_FAILLED;
 }
