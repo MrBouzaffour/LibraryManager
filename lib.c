@@ -84,6 +84,11 @@ typedef enum {
 	DEBUGGING_SUCCESS,
 	DEBUGGING_FAILLED
 } DebuggingResult;
+typedef enum {
+	EXIST,
+	NOTEXIST
+}Exist;
+
 
 Libraries init_Libraries() {
 	Libraries libs;
@@ -170,13 +175,32 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement,
 	}
 	if (strncmp(input_buffer->buffer, "use", 3) == 0) {
 		statement->type = USE;
-		Library new_lib;
-		int args_assigned = sscanf(input_buffer->buffer,"insert %s",new_lib.name);
-		printf("there are %d args",args_assigned);
-		statement->auxlib = new_lib;
-		return PREPARE_SUCCESS;
+		Library* new_lib = malloc(sizeof(Library));
+
+		int args_assigned = sscanf(input_buffer->buffer,"use %19s",new_lib->name);
+		printf("there are %d args\n",args_assigned);
+		
+		if (args_assigned == 1) {
+			statement->auxlib = new_lib;
+			return PREPARE_SUCCESS;
+		} 
+		else {
+			free(new_lib);
+			return PREPARE_UNRECOGNIZED;
+		}
 	}
 	return PREPARE_UNRECOGNIZED;
+}
+
+
+Exist libExist (Libraries* libs, Library* lib) {
+	for (int i =0; i < libs->count; ++i)
+	{
+		if (libs->libraries[i].name == lib->name) {
+			return EXIST;
+		}
+	}
+	return NOTEXIST;
 }
 
 ExecutedResult execute_show(Libraries* libs) {
@@ -196,10 +220,20 @@ ExecutedResult execute_show(Libraries* libs) {
 	return SUCCESS;
 }
 ExecutedResult execute_use(Statement* statement, Libraries* libs) {
-	(void)statement;
-	(void)libs;
-
-	UNIMPLEMENTED;
+	if (statement->auxlib != NULL) {
+		switch (libExist(libs,statement->auxlib))
+		{
+			case EXIST:
+				libs->currentlib = statement->auxlib;
+				return SUCCESS;
+			case NOTEXIST:
+				libs->libraries[libs->count] = statement->auxlib;
+				libs->count++;
+				libs->currentlib = statement->auxlib;
+				return SUCCESS;
+		}
+	}
+	return FAILED;
 }
 ExecutedResult execute_statement(Statement* statement, Libraries* libs) {
 	switch (statement->type) {
