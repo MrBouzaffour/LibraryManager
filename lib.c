@@ -35,7 +35,7 @@ typedef struct {
 
 typedef struct {
 	char* name;
-	char* location;
+	//char* location;
 	Book books[BOOKCAP];
 } Library;
 
@@ -63,13 +63,15 @@ typedef enum {
 } PrepareResult;
 
 typedef enum {
- 	SHOW
+ 	SHOW,
+	USE
 	//INSERT,
 	//SELECT
 } StatementType;
 
 typedef struct {
 	StatementType type;
+	Library* auxlib;
 } Statement;
 
 typedef enum {
@@ -81,7 +83,7 @@ typedef enum {
 typedef enum {
 	DEBUGGING_SUCCESS,
 	DEBUGGING_FAILLED
-}DebuggingResult;
+} DebuggingResult;
 
 Libraries init_Libraries() {
 	Libraries libs;
@@ -93,30 +95,10 @@ Libraries init_Libraries() {
 		exit(EXIT_FAILURE);
 	}
 
-	printf("Step 1 : INIT LIBRARIES\n");
 	return libs;
 }
 
-/*
-Library init_Library(char *name, char *location) {
-	Library lib;
-
-	lib.name = malloc(strlen(name)*sizeof(char));
-	lib.location = malloc(strlen(location)*sizeof(char));
-	if (lib.name == NULL || lib.location == NULL) {
-		fprintf(stderr, "Memory allocation failed\n");
-		exit(EXIT_FAILURE);
-	}
-	
-	strcpy(lib.name,name);
-	strcpy(lib.location,location);
-	memset(lib.books,0,sizeof(lib.books));
-	return lib;
-}
-*/
-
-InputBuffer* new_buffer() {
-	
+InputBuffer* new_buffer() {	
 	InputBuffer* input_buffer = (InputBuffer*)malloc(sizeof(InputBuffer));
 	
 	input_buffer->buffer = NULL;
@@ -172,8 +154,9 @@ DebuggingResult debug (InputBuffer* input_buffer, Statement* statement, Librarie
 		default:
 			return DEBUGGING_SUCCESS;
 	}
-	return DEBUGGING_FAILLED;
+	return DEBUGGING_SUCCESS;
 }
+
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement, Libraries* libs) {
 	(void)libs;
 	if (strncmp(input_buffer->buffer, "show", 4) == 0) {
@@ -184,6 +167,14 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement,
 			case (DEBUGGING_FAILLED):
 				return PREPARE_UNRECOGNIZED;	
 		}
+	}
+	if (strncmp(input_buffer->buffer, "use", 3) == 0) {
+		statement->type = USE;
+		Library new_lib;
+		int args_assigned = sscanf(input_buffer->buffer,"insert %s",new_lib.name);
+		printf("there are %d args",args_assigned);
+		statement->auxlib = new_lib;
+		return PREPARE_SUCCESS;
 	}
 	return PREPARE_UNRECOGNIZED;
 }
@@ -204,7 +195,12 @@ ExecutedResult execute_show(Libraries* libs) {
 	}
 	return SUCCESS;
 }
+ExecutedResult execute_use(Statement* statement, Libraries* libs) {
+	(void)statement;
+	(void)libs;
 
+	UNIMPLEMENTED;
+}
 ExecutedResult execute_statement(Statement* statement, Libraries* libs) {
 	switch (statement->type) {
 		/*case (INSERT):
@@ -213,6 +209,8 @@ ExecutedResult execute_statement(Statement* statement, Libraries* libs) {
 			return execute_select(statement);*/
 		case (SHOW):
 			return execute_show(libs);
+		case (USE):
+			return execute_use(statement,libs);
 		default:
 			return FAILED;
 	}
@@ -222,7 +220,6 @@ int main()
 {
 	InputBuffer* input_buffer = new_buffer();
 	Libraries libs = init_Libraries();
-	printf("there are %d libraries \n",libs.count);
 	while(true)
 	{
 		input_prompt();
