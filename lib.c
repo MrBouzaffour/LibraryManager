@@ -96,10 +96,10 @@ Libraries init_Libraries() {
 	libs.count = 0;
 	
 	if(libs.libraries == NULL) {
-		fprintf(stderr, "Memory allocation failed\n");
+		fprintf(stderr, "allocation failed\n");
 		exit(EXIT_FAILURE);
 	}
-
+	
 	return libs;
 }
 
