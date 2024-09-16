@@ -22,8 +22,8 @@ typedef struct {
 } Date;
 
 typedef struct {
-	char Name[10];
-	char LastName[10];
+	char* Name;
+	char* LastName;
 	Date DateBirth;
 } Author;
 
@@ -89,18 +89,18 @@ typedef enum {
 	NOTEXIST
 }Exist;
 
+Libraries libs;
 
-Libraries init_Libraries() {
-	Libraries libs;
-	libs.libraries = malloc(LIBRARIESCAP * sizeof(Library));
-	libs.count = 0;
+
+void init_Libraries(Libraries* libs) {
+	libs->libraries = malloc(LIBRARIESCAP * sizeof(Library));
+	libs->count = 0;
 	
-	if(libs.libraries == NULL) {
+	if(libs->libraries == NULL) {
 		fprintf(stderr, "allocation failed\n");
 		exit(EXIT_FAILURE);
 	}
 	
-	return libs;
 }
 
 InputBuffer* new_buffer() {	
@@ -148,13 +148,13 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 }
 
 DebuggingResult debug (InputBuffer* input_buffer, Statement* statement, Libraries* libs) {
-	(void)libs;
+	(void)libs; // Mark libs as unused
+
 	switch(statement->type) {
 		case (SHOW):
 			if (strlen(input_buffer->buffer) != 4) {
 				printf("Error: 'show' command should be exactly 4 characters long.\n");
-				return DEBUGGING_FAILLED;
-			}
+				return DEBUGGING_FAILLED;}
 			break;
 		default:
 			return DEBUGGING_SUCCESS;
@@ -163,7 +163,8 @@ DebuggingResult debug (InputBuffer* input_buffer, Statement* statement, Librarie
 }
 
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement, Libraries* libs) {
-	(void)libs;
+		(void)libs; // Mark libs as unused
+
 	if (strncmp(input_buffer->buffer, "show", 4) == 0) {
 		statement->type = SHOW;
 		switch (debug(input_buffer, statement, libs)) {
@@ -176,10 +177,8 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement,
 	if (strncmp(input_buffer->buffer, "use", 3) == 0) {
 		statement->type = USE;
 		Library* new_lib = malloc(sizeof(Library));
-
+		new_lib->name = malloc(20 * sizeof(char));
 		int args_assigned = sscanf(input_buffer->buffer,"use %19s",new_lib->name);
-		printf("there are %d args\n",args_assigned);
-		
 		if (args_assigned == 1) {
 			statement->auxlib = new_lib;
 			return PREPARE_SUCCESS;
@@ -193,24 +192,18 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement,
 }
 
 
-Exist libExist (Libraries* libs, Library* lib) {
-	for (int i =0; i < libs->count; ++i)
-	{
-		if (libs->libraries[i].name == lib->name) {
-			return EXIST;
-		}
-	}
-	return NOTEXIST;
-}
+
+
 
 ExecutedResult execute_show(Libraries* libs) {
+	printf("\n There is %d libraries in totak.\n\n",libs->count);
 	if (libs->count == 0) {
-		printf("thete is no libraries registered. \n");
+		printf("\n There is no libraries registered yet. \n");
 	}
 	else {
 		for (int i = 0; i < libs->count; ++i) {
-			if (strcmp(libs->libraries[i].name, libs->currentlib->name) == 0){
-				printf("*  %s.\n",libs->currentlib->name);
+			if (strcmp(libs->libraries[i].name, libs->currentlib->name) == 0) {
+    			printf("*  %s.\n",libs->currentlib->name);
 			} 
 			else {
 				printf("%s. \n",libs->libraries[i].name);
@@ -220,27 +213,47 @@ ExecutedResult execute_show(Libraries* libs) {
 	return SUCCESS;
 }
 
-ExecutedResult execute_use(Statement* statement, Libraries* libs) {
-	if (statement->auxlib != NULL) {
-		switch (libExist(libs,statement->auxlib))
-		{
-			case EXIST:
-				for (int i = 0; i < libs->count; ++i) {
-					if (strcmp(libs->libraries[i].name, statement->auxlib->name) == 0) {
-						libs->currentlib = &libs->libraries[i];
-						return SUCCESS;
-					}
-				}
-				break;
-			case NOTEXIST:
-				libs->libraries[libs->count] = *statement->auxlib;
-				libs->count++;
-				libs->currentlib = &libs->libraries[libs->count -1];
-				return SUCCESS;
-		}
-	}
-	return FAILED;
+
+Exist libExist(Libraries* libs, Library* lib) {
+    for (int i = 0; i < libs->count; ++i) {
+        if (strcmp(libs->libraries[i].name, lib->name) == 0) {
+            return EXIST;
+        }
+    }
+    return NOTEXIST;
 }
+
+
+ExecutedResult execute_use(Statement* statement, Libraries* libs) {
+    if (statement->auxlib != NULL) {
+        switch (libExist(libs, statement->auxlib)) {
+            case EXIST:
+                // If library exists, set it as current library
+                for (int i = 0; i < libs->count; ++i) {
+                    if (strcmp(libs->libraries[i].name, statement->auxlib->name) == 0) {
+                        libs->currentlib = &libs->libraries[i];
+                        return SUCCESS;
+                    }
+                }
+                break;
+
+            case NOTEXIST:
+                // If the library doesn't exist, add it to the libraries array
+                if (libs->count < LIBRARIESCAP) { // Ensure we have space for new library
+                    // Copy the new library to the array of libraries
+                    libs->libraries[libs->count] = *statement->auxlib;
+                    libs->count++;
+                    libs->currentlib = &libs->libraries[libs->count - 1]; // Set as current library
+                    return SUCCESS;
+                } else {
+                    printf("Error: Maximum number of libraries reached.\n");
+                    return FAILED;
+                }
+        }
+    }
+    return FAILED;
+}
+
 
 ExecutedResult execute_statement(
 		Statement* statement, Libraries* libs) {
@@ -261,7 +274,7 @@ ExecutedResult execute_statement(
 int main()	
 {
 	InputBuffer* input_buffer = new_buffer();
-	Libraries libs = init_Libraries();
+	init_Libraries(&libs);
 	while(true)
 	{
 		input_prompt();
