@@ -15,53 +15,61 @@
 		}while(0)
 
 
+/* -- Date : year/month/day -- */
 typedef struct {
 	int day;
 	int month;
 	int year;	
 } Date;
 
+/* The Author of the book's informations */
 typedef struct {
 	char* Name;
 	char* LastName;
 	Date DateBirth;
 } Author;
 
+/* The book's informations */
 typedef struct {
 	char Name[20];
 	char Genre[20];
 	Author Auth;
 } Book;
 
+/* -- Local library informations && the book list that it contains -- */
 typedef struct {
 	char* name;
 	//char* location;
 	Book books[BOOKCAP];
 } Library;
 
+/* 
+	This will represent all libraries: list of libraries, how many libraries,
+	and a pointer to the current library that we are using
+ */
 typedef struct {
 	Library* libraries;
 	int count;
 	Library* currentlib;
 } Libraries;
 
+
+/* --Input - > statement - > prepare - > execute */
+
+/* Input */
 typedef struct {
 	char* buffer;
 	size_t buffer_length;
 	size_t input_length;
 } InputBuffer;
 
-typedef enum {
-	META_COMMAND_SUCCESS,
-	META_COMMAND_UNRECOGNIZED
-} MetaCommandResult;
+/* statement prepare */
+typedef struct {
+	StatementType type;
+	Library* auxlib;
+} Statement;
 
-typedef enum {
-	PREPARE_SUCCESS,
-	PREPARE_UNRECOGNIZED,
-	PREPARE_ERROR
-} PrepareResult;
-
+/* statement Type */
 typedef enum {
  	SHOW,
 	USE
@@ -69,25 +77,42 @@ typedef enum {
 	//SELECT
 } StatementType;
 
-typedef struct {
-	StatementType type;
-	Library* auxlib;
-} Statement;
+/* Meta commands */
+typedef enum {
+	META_COMMAND_SUCCESS,
+	META_COMMAND_UNRECOGNIZED
+} MetaCommandResult;
 
+/* Prepare Results*/
+typedef enum {
+	PREPARE_SUCCESS,
+	PREPARE_UNRECOGNIZED,
+	PREPARE_ERROR
+} PrepareResult;
+
+/* Executed Results */
 typedef enum {
 	SUCCESS,
 	FAILED,
 	NOT_FOUND
 } ExecutedResult;
 
+/* Dubugging Results */
 typedef enum {
 	DEBUGGING_SUCCESS,
 	DEBUGGING_FAILLED
 } DebuggingResult;
+
+/* Exit */
 typedef enum {
 	EXIST,
 	NOTEXIST
 }Exist;
+
+
+
+
+
 
 Libraries libs;
 
