@@ -113,13 +113,15 @@ typedef enum {
 
 
 
-
-
-
 Libraries libs;
 
+void input_prompt(){printf(">> ");}
 
-void init_Libraries(Libraries* libs) {
+void init_Libraries(Libraries* libs) 
+{
+	/*
+	*	Memory allocation for the libraries buffer
+	*/
 	libs->libraries = malloc(LIBRARIESCAP * sizeof(Library));
 	libs->count = 0;
 	
@@ -127,21 +129,27 @@ void init_Libraries(Libraries* libs) {
 		fprintf(stderr, "allocation failed\n");
 		exit(EXIT_FAILURE);
 	}
-	
 }
 
-InputBuffer* new_buffer() {	
+InputBuffer* new_buffer() 
+{	
+	/*
+	*	Memory allocation for the input buffer
+	*/
 	InputBuffer* input_buffer = (InputBuffer*)malloc(sizeof(InputBuffer));
 	
 	input_buffer->buffer = NULL;
-        input_buffer->buffer_length = 0;
+    input_buffer->buffer_length = 0;
 	input_buffer->input_length = 0;
 	
 	return input_buffer;
 }
 
-void read_input(InputBuffer* input_buffer) {
-	
+void read_input(InputBuffer* input_buffer) 
+{
+	/*
+	*	Reading input and storing it into the input buffer
+	*/
 	if (input_buffer->buffer == NULL) {
 		input_buffer->buffer = (char*)malloc(BUFFERCAP);
 		input_buffer->buffer_length = BUFFERCAP;
@@ -159,14 +167,20 @@ void read_input(InputBuffer* input_buffer) {
 	}
 }
 
-void close_buffer(InputBuffer* input_buffer) {	
+void close_buffer(InputBuffer* input_buffer) 
+{
+	/*
+	*	Closing input buffer
+	*/	
 	free(input_buffer->buffer);
 	free(input_buffer);
 }
 
-void input_prompt(){printf(">> ");}
-
-MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
+MetaCommandResult do_meta_command(InputBuffer* input_buffer) 	
+{
+	/*
+	*	Checking if the input is recognized as a META_COMMAND like : '.exit'
+	*/
 	if (strcmp(input_buffer->buffer, ".exit") == 0) {
 		exit(EXIT_SUCCESS);
 	} else{
@@ -174,26 +188,18 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 	}
 }
 
-DebuggingResult debug (InputBuffer* input_buffer, Statement* statement, Libraries* libs) {
-	(void)libs; // Mark libs as unused
+PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement, Libraries* libs) 
+{
+	/*
+	*	This functions figures out what type of statement we are getting, prepare it and debug it 
+	*/	
+	(void)libs; 
 
-	switch(statement->type) {
-		case (SHOW):
-			if (strlen(input_buffer->buffer) != 4) {
-				printf("Error: 'show' command should be exactly 4 characters long.\n");
-				return DEBUGGING_FAILLED;}
-			break;
-		default:
-			return DEBUGGING_SUCCESS;
-	}
-	return DEBUGGING_SUCCESS;
-}
-
-PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement, Libraries* libs) {
-		(void)libs; // Mark libs as unused
-
+	//	>> SHOW
 	if (strncmp(input_buffer->buffer, "show", 4) == 0) {
+		
 		statement->type = SHOW;
+		
 		switch (debug(input_buffer, statement, libs)) {
 			case (DEBUGGING_SUCCESS):
 				return PREPARE_SUCCESS;
@@ -201,16 +207,20 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement,
 				return PREPARE_UNRECOGNIZED;	
 		}
 	}
+
+	//	>> USE lib1
 	if (strncmp(input_buffer->buffer, "use", 3) == 0) {
+		
 		statement->type = USE;
 		Library* new_lib = malloc(sizeof(Library));
 		new_lib->name = malloc(20 * sizeof(char));
+		
 		int args_assigned = sscanf(input_buffer->buffer,"use %19s",new_lib->name);
+		
 		if (args_assigned == 1) {
 			statement->auxlib = new_lib;
 			return PREPARE_SUCCESS;
-		} 
-		else {
+		} else {
 			free(new_lib);
 			return PREPARE_UNRECOGNIZED;
 		}
@@ -218,8 +228,44 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement,
 	return PREPARE_UNRECOGNIZED;
 }
 
+DebuggingResult debug (InputBuffer* input_buffer, Statement* statement, Libraries* libs) 
+{
+	/*
+	*	Debug a statement
+	*/
+	(void)libs; 
 
+	switch(statement->type) {
+		case (SHOW):
+			if (strlen(input_buffer->buffer) != 4) {
+				printf("Error: 'show' command should be exactly 4 characters long.\n");
+				return DEBUGGING_FAILLED;}
+			break;
+			
+		default:
+			return DEBUGGING_SUCCESS;
+	}
+	return DEBUGGING_SUCCESS;
+}
 
+ExecutedResult execute_statement(Statement* statement, Libraries* libs) 
+{
+	/*
+	*	Executing the statement based on its type
+	*/
+	switch (statement->type) {
+		/*case (INSERT):
+			return execute_insert(statement);
+		case (SELECT):
+			return execute_select(statement);*/
+		case (SHOW):
+			return execute_show(libs);
+		case (USE):
+			return execute_use(statement,libs);
+		default:
+			return FAILED;
+	}
+}
 
 
 ExecutedResult execute_show(Libraries* libs) {
@@ -241,14 +287,7 @@ ExecutedResult execute_show(Libraries* libs) {
 }
 
 
-Exist libExist(Libraries* libs, Library* lib) {
-    for (int i = 0; i < libs->count; ++i) {
-        if (strcmp(libs->libraries[i].name, lib->name) == 0) {
-            return EXIST;
-        }
-    }
-    return NOTEXIST;
-}
+
 
 
 ExecutedResult execute_use(Statement* statement, Libraries* libs) {
@@ -281,22 +320,16 @@ ExecutedResult execute_use(Statement* statement, Libraries* libs) {
     return FAILED;
 }
 
-
-ExecutedResult execute_statement(
-		Statement* statement, Libraries* libs) {
-	switch (statement->type) {
-		/*case (INSERT):
-			return execute_insert(statement);
-		case (SELECT):
-			return execute_select(statement);*/
-		case (SHOW):
-			return execute_show(libs);
-		case (USE):
-			return execute_use(statement,libs);
-		default:
-			return FAILED;
-	}
+Exist libExist(Libraries* libs, Library* lib) {
+    for (int i = 0; i < libs->count; ++i) {
+        if (strcmp(libs->libraries[i].name, lib->name) == 0) {
+            return EXIST;
+        }
+    }
+    return NOTEXIST;
 }
+
+
 
 int main()	
 {
