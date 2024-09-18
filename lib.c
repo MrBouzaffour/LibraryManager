@@ -268,8 +268,11 @@ ExecutedResult execute_statement(Statement* statement, Libraries* libs)
 }
 
 
-ExecutedResult execute_show(Libraries* libs) {
-	printf("\n There is %d libraries in totak.\n\n",libs->count);
+ExecutedResult execute_show(Libraries* libs) 
+{
+	/*
+	*	Executing SHOW statement
+	*/	
 	if (libs->count == 0) {
 		printf("\n There is no libraries registered yet. \n");
 	}
@@ -277,8 +280,7 @@ ExecutedResult execute_show(Libraries* libs) {
 		for (int i = 0; i < libs->count; ++i) {
 			if (strcmp(libs->libraries[i].name, libs->currentlib->name) == 0) {
     			printf("*  %s.\n",libs->currentlib->name);
-			} 
-			else {
+			} else {
 				printf("%s. \n",libs->libraries[i].name);
 			}
 		}
@@ -290,7 +292,11 @@ ExecutedResult execute_show(Libraries* libs) {
 
 
 
-ExecutedResult execute_use(Statement* statement, Libraries* libs) {
+ExecutedResult execute_use(Statement* statement, Libraries* libs) 
+{
+	/*
+	*	Executing USE statement
+	*/	
     if (statement->auxlib != NULL) {
         switch (libExist(libs, statement->auxlib)) {
             case EXIST:
@@ -320,7 +326,11 @@ ExecutedResult execute_use(Statement* statement, Libraries* libs) {
     return FAILED;
 }
 
-Exist libExist(Libraries* libs, Library* lib) {
+Exist libExist(Libraries* libs, Library* lib) 
+{
+	/*
+	*	Checking if a library exisit
+	*/	
     for (int i = 0; i < libs->count; ++i) {
         if (strcmp(libs->libraries[i].name, lib->name) == 0) {
             return EXIST;
@@ -334,11 +344,15 @@ Exist libExist(Libraries* libs, Library* lib) {
 int main()	
 {
 	InputBuffer* input_buffer = new_buffer();
+
 	init_Libraries(&libs);
+
 	while(true)
 	{
 		input_prompt();
 		read_input(input_buffer);
+		
+		// Checking meta commands
 		if (input_buffer->buffer[0] == '.') {
 			switch( do_meta_command(input_buffer)) {
 				case(META_COMMAND_SUCCESS):
@@ -349,6 +363,7 @@ int main()
 			}
 		}
 		
+		// Preparing Statements
 		Statement statement;
 		switch (prepare_statement(input_buffer, &statement, &libs)) {	
 			case(PREPARE_SUCCESS):
@@ -361,6 +376,8 @@ int main()
 				continue;
 		}
 		
+
+		// Executing statmenets
 		switch (execute_statement(&statement, &libs)) {
 			case (SUCCESS):
 				printf("Executed.\n");
