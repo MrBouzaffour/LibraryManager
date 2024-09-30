@@ -7,7 +7,7 @@
 #define BOOKCAP 1024	// capacity of books in a libraries
 #define LIBRARIESCAP  1024	// Maximum number of libraries
 
-/* This macro will help me in debugging. Remove later :) */
+/* This macro will help me in debugging. Remove later :) 
 #define UNIMPLEMENTED \
 	do {	\
 		fprintf(stderr,"%s:%d: TODO: %s is not implemented yet.\n",\
@@ -15,7 +15,7 @@
 		abort();\
 		}while(0)
 
-
+*/
 
 /* -- Date : year/month/day -- */
 typedef struct {
